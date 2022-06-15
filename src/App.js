@@ -5,6 +5,7 @@ import Channel from './components/Channel';
 import Message from './components/Message';
 
 const initialState = {
+  url: 'http://localhost:8080/spring',
   isLogin: false,
   username: "",
   passowrd: "",
@@ -16,11 +17,17 @@ const initialState = {
   typedMessage: "",
   selectedChannelId: -1,
   showAddChannelModal: false,
-  channelName: ""
+  channelName: "",
+  searchWord: ""
 }
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case "URL_CHANGE":
+      return {
+        ...state,
+        url: action.url
+      };
     case "USERNAME_CHANGE":
       return {
         ...state,
@@ -67,21 +74,12 @@ const reducer = (state, action) => {
       }
     case "LOGOUT":
       return {
-        ...state,
-        isLogin: false,
-        infoMessage: "",
-        errorMessage: "",
-        selectedChannelId: -1,
-        username: "",
-        password: "",
-        token: ""
+        ...initialState
       };
     case "LOGIN_EXPIRED":
       return {
-        ...state,
-        isLogin: false,
-        errorMessage: "認証セッションが切れました。再度ログインしてください。",
-        password: ""
+        ...initialState,
+        errorMessage: "認証セッションが切れました。再度ログインしてください。"
       };
     case "UPDATE_CHANNEL":
       return {
@@ -107,7 +105,8 @@ const reducer = (state, action) => {
     case "SELECT_CHANNED_ID":
       return {
         ...state,
-        selectedChannelId: action.selectedChannelId
+        selectedChannelId: action.selectedChannelId,
+        searchWord: ''
       };
     case "OPEN_ADD_CHANNEL_MODAL":
       return {
@@ -125,6 +124,11 @@ const reducer = (state, action) => {
         ...state,
         channelName: action.channelName
       };
+    case "SEARCH_WORD_CHANGE":
+      return {
+        ...state,
+        searchWord: action.searchWord
+      };
     default:
       return state;
   }
@@ -132,11 +136,17 @@ const reducer = (state, action) => {
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { isLogin, username, password, infoMessage, errorMessage, token, channels, messages, typedMessage, selectedChannelId, showAddChannelModal, channelName } = state;
-
-  const URL = 'http://localhost:8080/spring'
+  const { url, isLogin, username, password, infoMessage, errorMessage, token, channels, messages, typedMessage, selectedChannelId, showAddChannelModal, channelName, searchWord } = state;
 
   const messagesContainer = React.createRef();
+
+
+  const handleUrlChanges = (e) => {
+    dispatch({
+      type: "URL_CHANGE",
+      url: e.target.value
+    });
+  }
 
   const handleUsernameChanges = (e) => {
     dispatch({
@@ -160,7 +170,7 @@ function App() {
   }
 
   const login = () => {
-    fetch(`${URL}/auth/token`, {
+    fetch(`${url}/auth/token`, {
       method: 'post',
       headers: new Headers({
         'Authorization': 'Basic ' + btoa(username + ':' + password)
@@ -195,7 +205,7 @@ function App() {
       password: password
     };
 
-    fetch(`${URL}/auth/signup`, {
+    fetch(`${url}/auth/signup`, {
       method: 'post',
       headers: new Headers({
         'Content-Type': 'application/json'
@@ -221,7 +231,7 @@ function App() {
   }
 
   const findChannel = useCallback(token => {
-    fetch(`${URL}/channel`, {
+    fetch(`${url}/channel`, {
       method: 'get',
       headers: new Headers({
         'Authorization': `Bearer ${token}`
@@ -243,7 +253,7 @@ function App() {
           });
         }
       })
-  }, []);
+  }, [url]);
 
 
   useEffect(() => {
@@ -259,8 +269,9 @@ function App() {
     })
   }
 
-  const findMessage = useCallback(channelId => {
-    fetch(`${URL}/message?channelId=${channelId}`, {
+  const findMessage = useCallback((channelId, searchWord) => {
+    const wordCondition = searchWord ? `&searchWord=${searchWord}` : '';
+    fetch(`${url}/message?channelId=${channelId}${wordCondition}`, {
       method: 'get',
       headers: new Headers({
         'Authorization': `Bearer ${token}`
@@ -282,11 +293,11 @@ function App() {
           })
         }
       })
-  }, [token]);
+  }, [token, url]);
 
   useEffect(() => {
     if (selectedChannelId !== -1) {
-      findMessage(selectedChannelId);
+      findMessage(selectedChannelId, '');
     }
   }, [selectedChannelId, findMessage]);
 
@@ -297,7 +308,7 @@ function App() {
       username: "sugi"
     };
 
-    fetch(`${URL}/message`, {
+    fetch(`${url}/message`, {
       method: 'post',
       headers: new Headers({
         'Authorization': `Bearer ${token}`,
@@ -310,20 +321,14 @@ function App() {
           dispatch({
             type: "POST_SUCCESS"
           })
-          findMessage(selectedChannelId)
+          findMessage(selectedChannelId, '')
         } else {
           dispatch({
             type: "LOGIN_EXPIRED"
           })
         }
       })
-  }, [selectedChannelId, token, typedMessage, findMessage]);
-
-  useEffect(() => {
-    if (selectedChannelId !== -1) {
-      findMessage(selectedChannelId);
-    }
-  }, [selectedChannelId, findMessage]);
+  }, [selectedChannelId, token, typedMessage, url, findMessage]);
 
   const scrollToLatest = useCallback(() => {
     if (messagesContainer.current !== null) {
@@ -358,7 +363,7 @@ function App() {
       name: channelName
     };
 
-    fetch(`${URL}/channel`, {
+    fetch(`${url}/channel`, {
       method: 'post',
       headers: new Headers({
         'Authorization': `Bearer ${token}`,
@@ -378,14 +383,85 @@ function App() {
           })
         }
       })
-  }, [token, channelName, findChannel]);
+  }, [token, channelName, url, findChannel]);
+
+  const deleteChannel = useCallback(id => {
+    fetch(`${url}/channel/${id}`, {
+      method: 'delete',
+      headers: new Headers({
+        'Authorization': `Bearer ${token}`
+      })
+    })
+      .then(res => {
+        if (res.status === 200) {
+          findChannel(token);
+        } else {
+          dispatch({
+            type: "LOGIN_EXPIRED"
+          })
+        }
+      })
+  }, [token, url, findChannel]);
+
+  const updateChannel = useCallback((id, name) => {
+    const body = {
+      id: id,
+      name: name
+    };
+
+    fetch(`${url}/channel`, {
+      method: 'put',
+      headers: new Headers({
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(body)
+    })
+      .then(res => {
+        if (res.status === 200) {
+          findChannel(token);
+        } else {
+          dispatch({
+            type: "LOGIN_EXPIRED"
+          })
+        }
+      })
+  }, [token, url, findChannel]);
+
+  const handleSearchWordChanges = (e) => {
+    dispatch({
+      type: "SEARCH_WORD_CHANGE",
+      searchWord: e.target.value
+    });
+  }
 
   return (
     <Container>
       <Navbar bg='dark' variant='dark' fixed='top' className='navbar-header'>
-        <Navbar.Brand>SpringBoot-Advanced-Tutorial Chat App</Navbar.Brand>
+        <Navbar.Brand>Chat App</Navbar.Brand>
+        <Form className="d-flex">
+          <FormControl
+            type="text"
+            placeholder="APIベースURL"
+            className="bg-secondary me-4 navibar-header__url"
+            value={url}
+            onChange={handleUrlChanges}
+          />
+        </Form>
         {isLogin ?
-          <Button variant="outline-secondary" className='navibar-header__logout' onClick={logout}>ログアウト</Button>
+          <React.Fragment>
+            <Form className="d-flex navibar-header__search">
+              <FormControl
+                type="search"
+                placeholder="Search"
+                className="me-2"
+                value={searchWord}
+                onChange={handleSearchWordChanges}
+              />
+              <Button variant="outline-secondary" className='me-4 navibar-header__search__button' onClick={() => findMessage(selectedChannelId, searchWord)}>検索</Button>
+            </Form>
+            <Button variant="outline-secondary" className='navibar-header__logout ' onClick={logout}>ログアウト</Button>
+          </React.Fragment>
           : <React.Fragment />}
       </Navbar>
       {isLogin ? (
@@ -393,7 +469,7 @@ function App() {
           <Col xs={3}>
             <Navbar bg='light' variant='light'>
               <Navbar.Brand>チャンネル</Navbar.Brand>
-              <Button variant="outline-secondary" onClick={openAddChannel}>+</Button>
+              <Button className='channel-add' variant="outline-secondary" onClick={openAddChannel}>+</Button>
               <Modal show={showAddChannelModal} onHide={closeAddChannel}>
                 <Modal.Header closeButton>
                   <Modal.Title>チャンネル追加</Modal.Title>
@@ -412,7 +488,12 @@ function App() {
             </Navbar>
             <ListGroup>
               {(channels.map(channel =>
-                <Channel channel={channel} selectedChannelId={selectedChannelId} selectChannel={(channelId) => setSelectedChannelId(channelId)} key={channel.id} />))}
+                <Channel channel={channel}
+                  selectedChannelId={selectedChannelId}
+                  selectChannel={(channelId) => setSelectedChannelId(channelId)}
+                  deleteChannel={(channelId) => deleteChannel(channelId)}
+                  updateChannel={(channelId, channelName) => updateChannel(channelId, channelName)}
+                  key={channel.id} />))}
             </ListGroup>
           </Col>
           <Col>

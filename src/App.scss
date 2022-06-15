@@ -6,10 +6,25 @@ body { padding-top: 70px; }
   padding-left: 2em;
 }
 
-.navibar-header__logout {
+.navibar-header__url {
+  min-width: 300px;
+}
+
+.navibar-header__search {
   margin-left: auto;
-  margin-right: 2em;
-  
+  margin-right: 0.5em;
+}
+
+.navibar-header__search__button {
+  min-width: 80px;
+}
+
+.navibar-header__logout {
+  margin-right: 1em;
+}
+
+.channel-add {
+  margin-left: auto;
 }
 
 .login-form {
