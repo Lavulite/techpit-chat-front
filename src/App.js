@@ -1,5 +1,5 @@
 import { Container, Form, Button, Row, Col, ListGroup, Navbar } from 'react-bootstrap';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './App.scss';
 import Channel from './components/Channel';
 import Message from './components/Message';
@@ -51,7 +51,7 @@ function App() {
       })
   };
 
-  const findMessage = () => {
+  const findMessage = useCallback(() => {
     fetch(`${URL}/message?channelId=${selectedChannelId}`, {
       method: 'get',
       headers: new Headers({
@@ -62,13 +62,13 @@ function App() {
       .then(messages => {
         setMessages(messages);
       })
-  }
+  }, []);
 
   useEffect(() => {
     if (selectedChannelId !== -1) {
       findMessage();
     }
-  }, [selectedChannelId]);
+  }, [selectedChannelId, findMessage]);
 
   return (
     <Container>
