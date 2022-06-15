@@ -2,6 +2,40 @@
 
 body { padding-top: 70px; }
 
-.navbar {
+.navbar-header {
   padding-left: 2em;
+}
+
+.navibar-header__logout {
+  margin-left: auto;
+  margin-right: 2em;
+  
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  max-width: 60%;
+  min-width: 200px;
+  margin: 0 auto;
+}
+
+.login-form__button {
+  margin-left: auto;
+
+  & > * {
+    margin-left: 10px;
+  }
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+  height: 600px;
+}
+
+.message-post {
+  display: flex;
+  flex-direction: row;
 }
