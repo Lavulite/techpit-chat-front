@@ -62,7 +62,7 @@ function App() {
       .then(messages => {
         setMessages(messages);
       })
-  }, []);
+  }, [selectedChannelId, token]);
 
   useEffect(() => {
     if (selectedChannelId !== -1) {
