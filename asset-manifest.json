@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/techpit-chat-front/static/css/main.073c9b0a.css",
-    "main.js": "/techpit-chat-front/static/js/main.26660f69.js",
-    "static/js/787.40a0162b.chunk.js": "/techpit-chat-front/static/js/787.40a0162b.chunk.js",
-    "static/media/logo.svg": "/techpit-chat-front/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
-    "index.html": "/techpit-chat-front/index.html",
-    "main.073c9b0a.css.map": "/techpit-chat-front/static/css/main.073c9b0a.css.map",
-    "main.26660f69.js.map": "/techpit-chat-front/static/js/main.26660f69.js.map",
-    "787.40a0162b.chunk.js.map": "/techpit-chat-front/static/js/787.40a0162b.chunk.js.map"
+    "main.css": "./static/css/main.073c9b0a.css",
+    "main.js": "./static/js/main.e7aef3ff.js",
+    "static/js/787.40a0162b.chunk.js": "./static/js/787.40a0162b.chunk.js",
+    "static/media/logo.svg": "./static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "index.html": "./index.html",
+    "main.073c9b0a.css.map": "./static/css/main.073c9b0a.css.map",
+    "main.e7aef3ff.js.map": "./static/js/main.e7aef3ff.js.map",
+    "787.40a0162b.chunk.js.map": "./static/js/787.40a0162b.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.073c9b0a.css",
-    "static/js/main.26660f69.js"
+    "static/js/main.e7aef3ff.js"
   ]
 }
