@@ -5,7 +5,7 @@ import Channel from './components/Channel';
 import Message from './components/Message';
 
 const initialState = {
-  url: 'http://localhost:8080/spring',
+  url: 'http://localhost:8080/chat-backend',
   isLogin: false,
   username: "",
   passowrd: "",
@@ -231,7 +231,7 @@ function App() {
   }
 
   const findChannel = useCallback(token => {
-    fetch(`${url}/channel`, {
+    fetch(`${url}/channels`, {
       method: 'get',
       headers: new Headers({
         'Authorization': `Bearer ${token}`
@@ -271,7 +271,7 @@ function App() {
 
   const findMessage = useCallback((channelId, searchWord) => {
     const wordCondition = searchWord ? `&searchWord=${searchWord}` : '';
-    fetch(`${url}/message?channelId=${channelId}${wordCondition}`, {
+    fetch(`${url}/messages?channelId=${channelId}${wordCondition}`, {
       method: 'get',
       headers: new Headers({
         'Authorization': `Bearer ${token}`
@@ -308,7 +308,7 @@ function App() {
       username: "sugi"
     };
 
-    fetch(`${url}/message`, {
+    fetch(`${url}/messages`, {
       method: 'post',
       headers: new Headers({
         'Authorization': `Bearer ${token}`,
@@ -363,7 +363,7 @@ function App() {
       name: channelName
     };
 
-    fetch(`${url}/channel`, {
+    fetch(`${url}/channels`, {
       method: 'post',
       headers: new Headers({
         'Authorization': `Bearer ${token}`,
@@ -386,7 +386,7 @@ function App() {
   }, [token, channelName, url, findChannel]);
 
   const deleteChannel = useCallback(id => {
-    fetch(`${url}/channel/${id}`, {
+    fetch(`${url}/channels/${id}`, {
       method: 'delete',
       headers: new Headers({
         'Authorization': `Bearer ${token}`
@@ -409,7 +409,7 @@ function App() {
       name: name
     };
 
-    fetch(`${url}/channel`, {
+    fetch(`${url}/channels`, {
       method: 'put',
       headers: new Headers({
         'Authorization': `Bearer ${token}`,
