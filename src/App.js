@@ -304,8 +304,7 @@ function App() {
   const postMessage = useCallback(() => {
     const body = {
       channelId: selectedChannelId,
-      text: typedMessage,
-      username: "sugi"
+      text: typedMessage
     };
 
     fetch(`${url}/messages`, {
