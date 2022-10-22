@@ -404,11 +404,10 @@ function App() {
 
   const updateChannel = useCallback((id, name) => {
     const body = {
-      id: id,
       name: name
     };
 
-    fetch(`${url}/channels`, {
+    fetch(`${url}/channels/${id}`, {
       method: 'put',
       headers: new Headers({
         'Authorization': `Bearer ${token}`,
