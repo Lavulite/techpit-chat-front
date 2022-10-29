@@ -244,7 +244,7 @@ function App() {
               dispatch({
                 type: "UPDATE_CHANNEL",
                 channels: channels,
-                selectedChannelId: channels.map(channel => channel.id).reduce((a, b) => Math.min(a, b))
+                selectedChannelId: channels.length === 0 ? -1 : channels.map(channel => channel.id).reduce((a, b) => Math.min(a, b))
               });
             });
         } else {
@@ -270,8 +270,8 @@ function App() {
   }
 
   const findMessage = useCallback((channelId, searchWord) => {
-    const wordCondition = searchWord ? `&searchWord=${searchWord}` : '';
-    fetch(`${url}/messages?channelId=${channelId}${wordCondition}`, {
+    const wordCondition = searchWord ? `?searchWord=${searchWord}` : '';
+    fetch(`${url}/channels/${channelId}/messages${wordCondition}`, {
       method: 'get',
       headers: new Headers({
         'Authorization': `Bearer ${token}`
@@ -303,11 +303,10 @@ function App() {
 
   const postMessage = useCallback(() => {
     const body = {
-      channelId: selectedChannelId,
       text: typedMessage
     };
 
-    fetch(`${url}/messages`, {
+    fetch(`${url}/channels/${selectedChannelId}/messages`, {
       method: 'post',
       headers: new Headers({
         'Authorization': `Bearer ${token}`,
