@@ -241,11 +241,23 @@ function App() {
         if (res.status === 200) {
           res.json()
             .then(channels => {
-              dispatch({
-                type: "UPDATE_CHANNEL",
-                channels: channels,
-                selectedChannelId: channels.length === 0 ? -1 : channels.map(channel => channel.id).reduce((a, b) => Math.min(a, b))
-              });
+              if(channels.length === 0){
+                dispatch({
+                  type: "UPDATE_CHANNEL",
+                  channels: channels,
+                  selectedChannelId: -1
+                });
+                dispatch({
+                  type: "UPDATE_MESSAGES",
+                  messages: []
+                })
+              } else {
+                dispatch({
+                  type: "UPDATE_CHANNEL",
+                  channels: channels,
+                  selectedChannelId: channels.map(channel => channel.id).reduce((a, b) => Math.min(a, b))
+                });
+              }
             });
         } else {
           dispatch({
